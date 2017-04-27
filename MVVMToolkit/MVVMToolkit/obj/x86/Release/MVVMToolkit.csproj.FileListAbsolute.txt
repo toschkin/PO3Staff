@@ -1,0 +1,4 @@
+D:\Work\MFC\PROJECTS\3stroch\PO3Config\MVVMToolkit\MVVMToolkit\bin\x86\Release\MVVMToolkit.dll
+D:\Work\MFC\PROJECTS\3stroch\PO3Config\MVVMToolkit\MVVMToolkit\bin\x86\Release\MVVMToolkit.pdb
+D:\Work\MFC\PROJECTS\3stroch\PO3Config\MVVMToolkit\MVVMToolkit\obj\x86\Release\MVVMToolkit.dll
+D:\Work\MFC\PROJECTS\3stroch\PO3Config\MVVMToolkit\MVVMToolkit\obj\x86\Release\MVVMToolkit.pdb

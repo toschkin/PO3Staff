@@ -1,0 +1,891 @@
+﻿<Window x:Class="PO3Configurator.View.MainWindowView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:wpf="clr-namespace:Rubenhak.Common.WPF;assembly=Rubenhak.Common.WPF"
+        xmlns:qc="clr-namespace:QuickConverter;assembly=QuickConverter"
+        xmlns:local="clr-namespace:PO3Configurator"
+        xmlns:utils="clr-namespace:PO3Core.Utils;assembly=PO3Core"
+        xmlns:po3Core="clr-namespace:PO3Core;assembly=PO3Core"
+        xmlns:viewModel="clr-namespace:PO3Configurator.ViewModel"
+        xmlns:view="clr-namespace:PO3Configurator.View"
+        mc:Ignorable="d"
+        Title="Настройка ПО-3" Height="600" Width="800" Closing="MainWindowView_OnClosing"
+        MinHeight="600" MinWidth="800" WindowStartupLocation="CenterScreen"   
+        >
+    <DockPanel x:Name="WindowMainDockPannel" UseLayoutRounding="True">
+        <Menu DockPanel.Dock="Top" IsMainMenu="True" x:Name="MainMenu" FontSize="12"
+              Background="Transparent">
+            <MenuItem Header="_Соединение">
+                <MenuItem Header="_Подключиться"
+                          Command="{Binding Path=ConnectOnPortCommand}">
+                    <MenuItem.Icon>
+                        <Image Height="16" Width="16" Source="Images/port open icon.png" />
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="_Отключиться"                           
+                          Command="{Binding Path=DisconnectFromDeviceCommand}">
+                    <MenuItem.Icon>
+                        <Image Height="16" Width="16" Source="Images/port close icon.png" />
+                    </MenuItem.Icon>
+                </MenuItem>
+            </MenuItem>
+            <MenuItem Header="_Конфигурация" IsEnabled="{Binding Path=PortIsOpen}" >
+                <MenuItem Command="{Binding Path=ConnectToDeviceCommand}">
+                    <MenuItem.Header>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Считать конфигурацию с устройства:" HorizontalAlignment="Stretch">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property= "Foreground" Value="Black"/>
+                                        <Style.Triggers>
+                                            <Trigger Property ="IsMouseOver" Value="True">
+                                                <Setter Property= "Foreground" Value="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=MenuItem},Path=Foreground}"/>
+                                            </Trigger>
+                                            <DataTrigger Binding="{Binding Path=MenuItemEnabledOnChannelReady}" Value="False">
+                                                <Setter Property= "Foreground" Value="Gray"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                            <TextBox x:Name="DeviceAddress" Margin="5,0,0,0" Width="40" Height="Auto" 
+                                     IsEnabled="{Binding Path=ChannelReady}"
+                                     wpf:TextBoxMaskBehavior.Mask="Integer"
+        		                     wpf:TextBoxMaskBehavior.MinimumValue="1"
+                        		     wpf:TextBoxMaskBehavior.MaximumValue="247" 
+                                     PreviewLostKeyboardFocus="DeviceAddress_OnPreviewLostKeyboardFocus"
+                                     Text="{Binding Path=ReaderSaver.SlaveAddress, Mode=TwoWay, UpdateSourceTrigger=Explicit}"/>
+                        </StackPanel>
+                    </MenuItem.Header>
+                    <MenuItem.Icon>
+                        <Image Height="16" Width="16" Source="Images/open po3.png" />
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="Записать конфигурацию в устройство" 
+                          Command="{Binding Path=WriteConfigurationToDeviceCommand}">
+                    <MenuItem.Icon>
+                        <Image Height="16" Width="16" Source="Images/save po3.png" />
+                    </MenuItem.Icon>
+                </MenuItem>
+            </MenuItem>
+            <MenuItem Header="Команды" 
+                      IsEnabled="{qc:MultiBinding '$P0 &amp;&amp; $P1 &amp;&amp; $P2 ? true : false',
+                                    P0={Binding Path=IsConfigurationLoaded},
+                                    P1={Binding Path=PortIsOpen},
+                                    P2={Binding Path=ChannelReady}}" >
+                <MenuItem Header="Сброс устройства" Command="{Binding Path=DeviceCommand}" 
+                          CommandParameter="{x:Static utils:DeviceControlCommands.SetMasterMode}">
+                    <MenuItem.Icon>
+                        <Image Height="16" Width="16" Source="Images/Reset-icon.png" />
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="Тест устройства" Command="{Binding Path=DeviceCommand}" 
+                          CommandParameter="{x:Static utils:DeviceControlCommands.Test}">
+                    <MenuItem.Icon>
+                        <Image Height="16" Width="16" Source="Images/test po3.png" />
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="Синхронизация таймера мигания" Command="{Binding Path=DeviceCommand}" 
+                          CommandParameter="{x:Static utils:DeviceControlCommands.SyncBlinkTimer}">
+                    <MenuItem.Icon>
+                        <Image Height="16" Width="16" Source="Images/sync timer.png" />
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="Уровень яркости 1" Command="{Binding Path=DeviceCommand}" 
+                          CommandParameter="{x:Static utils:DeviceControlCommands.BrightnessLevel1}">
+                    <MenuItem.Icon>
+                        <Image Height="16" Width="16" Source="Images/1-brightness-icon.png" />
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="Уровень яркости 2" Command="{Binding Path=DeviceCommand}" 
+                          CommandParameter="{x:Static utils:DeviceControlCommands.BrightnessLevel2}">
+                    <MenuItem.Icon>
+                        <Image Height="16" Width="16" Source="Images/2-brightness-icon.png" />
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="Уровень яркости 3" Command="{Binding Path=DeviceCommand}" 
+                          CommandParameter="{x:Static utils:DeviceControlCommands.BrightnessLevel3}">
+                    <MenuItem.Icon>
+                        <Image Height="16" Width="16" Source="Images/3-brightness-icon.png" />
+                    </MenuItem.Icon>
+                </MenuItem>
+            </MenuItem>
+        </Menu>
+        <Border DockPanel.Dock ="Bottom" BorderBrush="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey}}" BorderThickness="1">
+            <StatusBar DockPanel.Dock ="Bottom" Background="Transparent">
+                <StatusBar.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="100" />
+                            </Grid.ColumnDefinitions>
+                        </Grid>
+                    </ItemsPanelTemplate>
+                </StatusBar.ItemsPanel>
+                <StatusBarItem Grid.Column="0">
+                    <TextBlock Text="{Binding Path=СonnectionStatus}"/>
+                </StatusBarItem>
+                <Separator Grid.Column="1" Margin="1,0,1,0"/>
+                <StatusBarItem Grid.Column="2"
+                               HorizontalAlignment="Stretch"
+                               HorizontalContentAlignment="Stretch">
+                    <TextBlock Text="{Binding Path=OperationStatus}" TextAlignment="Center" ToolTip="{Binding Path=OperationStatusTip}"/>
+                </StatusBarItem>
+                <Separator Grid.Column="3" Margin="1,0,1,0"/>
+                <StatusBarItem Grid.Column="4">
+                    <ProgressBar Width="90" Height="16" Value="{Binding Path=ProgressPercentage}">
+                    </ProgressBar>
+                </StatusBarItem>
+            </StatusBar>
+        </Border>
+        <Grid UseLayoutRounding="True">
+            <TextBlock Margin="0,10,10,10"  HorizontalAlignment="Center" VerticalAlignment="Center" 
+                       Text="Не загружена конфигурация"
+                       FontSize="28"
+                       FontWeight="Bold"
+                       Visibility="{qc:MultiBinding '!$P0 || !$P1 ? Visibility.Visible : Visibility.Collapsed',
+                                    P0={Binding Path=IsConfigurationLoaded},
+                                    P1={Binding Path=PortIsOpen}}"/>
+            <TabControl Margin="0,10,10,10" 
+                        Visibility="{qc:MultiBinding '$P0 &amp;&amp; $P1 ? Visibility.Visible : Visibility.Collapsed',
+                                    P0={Binding Path=IsConfigurationLoaded},
+                                    P1={Binding Path=PortIsOpen}}"
+                        Background="Transparent">
+                <TabItem Header="Общие настройки" Style="{DynamicResource RoundedRightCornerTabStyle}"
+                         DataContext="{Binding Path=PO3DeviceUnitCommonSettingsTabViewModel}">
+                    <StackPanel Margin="5">
+                        <Grid Margin="5">
+                            <Grid.RowDefinitions>
+                                <RowDefinition></RowDefinition>
+                                <RowDefinition></RowDefinition>
+                                <RowDefinition></RowDefinition>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                <ColumnDefinition Width="Auto"></ColumnDefinition>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Тип сопряженного устройства:" VerticalAlignment="Center" FontSize="14"></TextBlock>
+                            <TextBlock Grid.Row="0" Grid.Column="1" Margin ="10,0,0,0" Text="{Binding Path=ModuleType}" VerticalAlignment="Center" FontSize="14" FontWeight="Bold"></TextBlock>
+
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Версия прошивки ПО-3:" VerticalAlignment="Center" FontSize="14"></TextBlock>
+                            <TextBlock Grid.Row="1" Grid.Column="1" Margin ="10,0,0,0" Text="{Binding Path=FirmwareVersion}" VerticalAlignment="Center" FontSize="14" FontWeight="Bold"></TextBlock>
+
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Версия конфигурации карты памяти:" VerticalAlignment="Center" FontSize="14"></TextBlock>
+                            <TextBlock Grid.Row="2" Grid.Column="1" Margin ="10,0,0,0" Text="{Binding Path=ConfigurationVersion}" VerticalAlignment="Center" FontSize="14" FontWeight="Bold"></TextBlock>
+                        </Grid>
+                        <GroupBox Header="Общий статус прибора отображения" FontSize="14" BorderBrush="Black" BorderThickness="1.5">
+                            <Grid Margin="5">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="40"></RowDefinition>
+                                    <RowDefinition Height="40"></RowDefinition>
+                                    <RowDefinition Height="40"></RowDefinition>
+                                    <RowDefinition Height="40"></RowDefinition>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="1*"></ColumnDefinition>
+                                    <ColumnDefinition Width="9*"></ColumnDefinition>
+                                </Grid.ColumnDefinitions>
+
+                                <Image Grid.Row="0" Grid.Column="0" Height="32" Width="32" Source="{Binding Path=DeviceRestarted}" />
+                                <TextBlock Grid.Row="0" Grid.Column="1" Text="Был рестарт" VerticalAlignment="Center" FontSize="14"></TextBlock>
+
+                                <Image Grid.Row="1" Grid.Column="0" Height="32" Width="32" Source="{Binding Path=NegativeEEPROMTest}" />
+                                <TextBlock Grid.Row="1" Grid.Column="1" Text="Отрицательный тест EEPROM" VerticalAlignment="Center" FontSize="14"></TextBlock>
+
+                                <Image Grid.Row="2" Grid.Column="0" Height="32" Width="32" Source="{Binding Path=IndicatorDriversOverHeating}" />
+                                <TextBlock Grid.Row="2" Grid.Column="1" Text="Перегрев драйверов индикаторов" VerticalAlignment="Center" FontSize="14"></TextBlock>
+
+                                <Image Grid.Row="3" Grid.Column="0" Height="32" Width="32" Source="{Binding Path=IndicatorDriversSerialPortFault}" />
+                                <TextBlock Grid.Row="3" Grid.Column="1" Text="Сбой в последовательном порту драйверов индикаторов" FontSize="14" TextWrapping="Wrap"  VerticalAlignment="Center"></TextBlock>
+                            </Grid>
+                        </GroupBox>
+                        <GroupBox Header="Настройка доступа при автономной работе с ПО-3" FontSize="14" BorderBrush="Black" BorderThickness="1.5">
+                            <Grid Margin="5">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Row="0" Grid.Column="0" 
+                                           Text="Пароль:" 
+                                           VerticalAlignment="Center" FontSize="14"></TextBlock>
+                                <TextBox Grid.Row="0" Grid.Column="1"
+                                         Text="{Binding Path=DevicePassword, UpdateSourceTrigger=PropertyChanged}" 
+                                         Margin ="10,0,0,0" Width="50"                                                                                                         
+                                         wpf:TextBoxMaskBehavior.Mask="Integer"                                         
+                                         wpf:TextBoxMaskBehavior.MaximumValue="9999"
+                                         wpf:TextBoxMaskBehavior.MinimumValue="0"
+        		                         ></TextBox>
+
+                                <TextBlock Margin ="10,0" Grid.Row="0" Grid.Column="2" 
+                                           Text="{Binding Path=DevicePasswordFormatted, UpdateSourceTrigger=PropertyChanged}" 
+                                           VerticalAlignment="Center" FontSize="14"></TextBlock>
+                            </Grid>
+                        </GroupBox>
+                    </StackPanel>
+                </TabItem>
+                <TabItem Header="Настройка коммуникаций" Style="{DynamicResource RoundedRightCornerTabStyle}"
+                         DataContext="{Binding Path=PO3DeviceUnitCommunicationSettingsTabViewModel}">
+                    <StackPanel Margin="5">
+                        <StackPanel Orientation="Horizontal" FlowDirection="LeftToRight"
+                                    HorizontalAlignment="Right">
+                            <Button Margin="3" Command="{Binding Path=SaveCommSettingsToFileCommand}"
+                                    Background="Transparent" BorderBrush="Transparent" ToolTip="Экспорт в файл">
+                                <Image Height="32" Width="32" Source="Images/file-export-icon.png"
+                                       Style="{DynamicResource ButtonImageHoverStyle}">
+                                </Image>
+                            </Button>
+                            <Button Margin="3" Command="{Binding Path=ReadCommSettingsFromFileCommand}" 
+                                    Background="Transparent" BorderBrush="Transparent" ToolTip="Импорт из файла">
+                                <Image Height="32" Width="32" Source="Images/file-import-icon.png"
+                                       Style="{DynamicResource ButtonImageHoverStyle}">
+                                </Image>
+                            </Button>
+                            <Button Margin="3" Command="{Binding Path=DefaultCommSettingsCommand}"
+                                    Background="Transparent" BorderBrush="Transparent" ToolTip="&quot;Сброс &quot;По умолчанию">
+                                <Image Height="32" Width="32" Source="Images/document_empty.png"
+                                       Style="{DynamicResource ButtonImageHoverStyle}">
+                                </Image>
+                            </Button>
+                        </StackPanel>
+
+                        <GroupBox Header="Настройки коммуникационного порта" FontSize="14" BorderBrush="Black" BorderThickness="1.5">
+                            <Grid Margin="5">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Row="0" Grid.Column="0" 
+                                           Text="Скорость:" 
+                                           VerticalAlignment="Center" FontSize="14"></TextBlock>
+                                <ComboBox Grid.Row="0" Grid.Column="1" Margin ="10" Width="80"
+                                          SelectedItem="{Binding Path=DeviceBaudRate, Mode=TwoWay}"
+                                          ItemsSource="{Binding Path=AvailableBaudRates}"
+        		                          ></ComboBox>
+                                <TextBlock Grid.Row="0" Grid.Column="2" Text="Контроль чётности:" Margin="10,0"
+                                           VerticalAlignment="Center" FontSize="14"></TextBlock>
+                                <ComboBox Grid.Row="0" Grid.Column="3" Margin ="10" Width="80"
+                                          SelectedItem="{Binding Path=DeviceParity, Mode=TwoWay}"
+                                          ItemsSource="{Binding Path=AvailableParities}"
+        		                          ></ComboBox>
+
+                                <TextBlock Grid.Row="0" Grid.Column="4" Text="Стоповых бит:" Margin="10,0"
+                                           VerticalAlignment="Center" FontSize="14"></TextBlock>
+                                <ComboBox Grid.Row="0" Grid.Column="5" Margin ="10" Width="80"
+                                          SelectedItem="{Binding Path=DeviceStopBits, Mode=TwoWay}"
+                                          ItemsSource="{Binding Path=AvailableStopBits}"
+        		                          ></ComboBox>
+                            </Grid>
+                        </GroupBox>
+                        <GroupBox Header="Настройки протокола передачи данных" FontSize="14" BorderBrush="Black" BorderThickness="1.5">
+                            <StackPanel>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                        <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Row="0" Grid.Column="0" 
+                                                           Text="Адрес сопряженного устройства МТЕ:" 
+                                                            Margin="10"
+                                                           VerticalAlignment="Center" FontSize="14"></TextBlock>
+                                    <TextBox Grid.Row="0" Grid.Column="1"
+                                                         Text="{Binding Path=DeviceAddress, UpdateSourceTrigger=PropertyChanged}" 
+                                                         Margin ="10" Width="80"
+                                                         wpf:TextBoxMaskBehavior.Mask="Integer"
+                                                         wpf:TextBoxMaskBehavior.MaximumValue="246"
+                                                         wpf:TextBoxMaskBehavior.MinimumValue="1"
+                                                         HorizontalAlignment="Stretch"></TextBox>
+                                    <!--
+                                    <GroupBox Header="Общие" FontSize="14" Grid.Row="0" Grid.Column="0" BorderBrush="Black" BorderThickness="1.5"
+                                              Margin="10">
+                                        <StackPanel>
+                                            <Grid Margin="5">
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition></RowDefinition>
+                                                    <RowDefinition></RowDefinition>
+                                                    <RowDefinition></RowDefinition>
+                                                </Grid.RowDefinitions>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                                    <ColumnDefinition Width="80"></ColumnDefinition>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Grid.Row="1" Grid.Column="0" Visibility="Collapsed"
+                                                           Text="Режим работы устройства:" 
+                                                           VerticalAlignment="Center" FontSize="14"></TextBlock>
+                                                <ComboBox Grid.Row="1" Grid.Column="1" Margin ="10,5" 
+                                                          SelectedItem="{Binding Path=DeviceMode, Mode=TwoWay}"
+                                                          ItemsSource="{Binding Path=AvailableDeviceModes}"
+                                                          Visibility="Collapsed"></ComboBox>
+                                                <TextBlock Grid.Row="2" Grid.Column="0" 
+                                                           Text="Интервал тишины (мс):" 
+                                                           VerticalAlignment="Center" FontSize="14"></TextBlock>
+                                                <TextBox Grid.Row="2" Grid.Column="1"
+                                                         Text="{Binding Path=DeviceSilentInterval, UpdateSourceTrigger=PropertyChanged}" 
+                                                         Margin ="10,5"                                      
+                                                         wpf:TextBoxMaskBehavior.Mask="Integer"
+                                                         wpf:TextBoxMaskBehavior.MaximumValue="250"
+                                                         wpf:TextBoxMaskBehavior.MinimumValue="3"
+                                                         HorizontalAlignment="Stretch"></TextBox>
+                                            </Grid>
+                                        </StackPanel>
+                                    </GroupBox>
+                                    
+                                    <GroupBox Header="Modbus RTU" FontSize="14" Grid.Row="0" Grid.Column="1" BorderBrush="Black"                                     
+                                              BorderThickness="1.5" Margin="10">
+                                        <Grid Margin="5">
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition></RowDefinition>
+                                                <RowDefinition></RowDefinition>
+                                                <RowDefinition></RowDefinition>
+                                                <RowDefinition></RowDefinition>
+                                                <RowDefinition></RowDefinition>
+                                            </Grid.RowDefinitions>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                                <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Grid.Row="0" Grid.Column="0" 
+                                                       Text="Интервал запросов к МТЕ (мс):" 
+                                                       VerticalAlignment="Center" FontSize="14"></TextBlock>
+                                            <ComboBox Grid.Row="0" Grid.Column="1" Margin ="10,5" Width="80"
+                                                      SelectedItem="{Binding Path=DeviceModbusPollingRequestsInterval, Mode=TwoWay}"
+                                                      ItemsSource="{Binding Path=AvailableDeviceModbusPollingRequestsIntervals}"
+                                                      HorizontalAlignment="Left"></ComboBox>
+                                            
+                                            <TextBox Grid.Row="0" Grid.Column="1"
+                                                     Text="{Binding Path=, UpdateSourceTrigger=PropertyChanged}" 
+                                                     Margin ="10,5" Width="80"                                         
+                                                     wpf:TextBoxMaskBehavior.Mask="Integer"                                                     
+                                                     wpf:TextBoxMaskBehavior.MaximumValue="1000"
+                                                     HorizontalAlignment="Left"></TextBox>                                            
+                                            <TextBlock Grid.Row="1" Grid.Column="0" 
+                                                       Text="Cбоев до генерации ошибки:" 
+                                                       VerticalAlignment="Center" FontSize="14"></TextBlock>
+                                            <ComboBox Grid.Row="1" Grid.Column="1" Margin ="10,5" Width="80"
+                                                      SelectedItem="{Binding Path=DeviceModbusPollingFaultsCount, Mode=TwoWay}"
+                                                      ItemsSource="{Binding Path=AvailableDeviceModbusPollingFaultsCounts}"
+                                                      HorizontalAlignment="Left"></ComboBox>
+                                            <TextBlock Grid.Row="2" Grid.Column="0" 
+                                                        Text="Номер функции Modbus в запросе:" 
+                                                        VerticalAlignment="Center" FontSize="14"></TextBlock>
+                                            <ComboBox Grid.Row="2" Grid.Column="1" Margin ="10,5,0,5" Width="190"
+                                                        SelectedItem="{Binding Path=DeviceModbusPollingFunctionCode, Mode=TwoWay}"
+                                                        ItemsSource="{Binding Path=AvailableDeviceModbusPollingFunctionCodes}"></ComboBox>
+                                           
+                                            <TextBlock Grid.Row="3" Grid.Column="0" 
+                                                       Text="Начальный адрес данных в запросе:" 
+                                                       VerticalAlignment="Center" FontSize="14"></TextBlock>
+                                            <StackPanel Grid.Row="3" Grid.Column="1" Orientation="Horizontal">
+                                                <TextBox 
+                                                         Style="{DynamicResource TextBoxWithErrorToolTip}"
+                                                         Text="{Binding Path=DeviceModbusPollingStartingAddress, 
+                                                            UpdateSourceTrigger=PropertyChanged,ValidatesOnDataErrors=True}"                                                     
+                                                         Margin ="10,5" Width="80"                                         
+                                                         Validation.ErrorTemplate="{DynamicResource TextBoxValidationFailed}"
+                                                         wpf:TextBoxMaskBehavior.Mask="Integer"
+                                                         wpf:TextBoxMaskBehavior.MaximumValue="65534"
+                                                         wpf:TextBoxMaskBehavior.MinimumValue="0"
+                                                         HorizontalAlignment="Left"></TextBox>
+                                                <TextBlock 
+                                                       Text="{Binding Path=DeviceModbusPollingStartingAddressHex, UpdateSourceTrigger=PropertyChanged}"
+                                                       VerticalAlignment="Center" FontSize="14" FontWeight="DemiBold" Margin="15,0"></TextBlock>
+                                            </StackPanel>
+                                            <TextBlock Grid.Row="4" Grid.Column="0" 
+                                                       Text="Количество регистров в запросе:" 
+                                                       VerticalAlignment="Center" FontSize="14"></TextBlock>
+                                            <TextBox Grid.Row="4" Grid.Column="1"
+                                                     Style="{DynamicResource TextBoxWithErrorToolTip}"
+                                                     Text="{Binding Path=DeviceModbusPollingRegistersCount, 
+                                                            UpdateSourceTrigger=PropertyChanged,ValidatesOnDataErrors=True}" 
+                                                     Validation.ErrorTemplate="{DynamicResource TextBoxValidationFailed}"
+                                                     Margin ="10,5" Width="80"                                         
+                                                     wpf:TextBoxMaskBehavior.Mask="Integer"
+                                                     wpf:TextBoxMaskBehavior.MaximumValue="38"
+                                                     wpf:TextBoxMaskBehavior.MinimumValue="1"
+                                                     HorizontalAlignment="Left"></TextBox>
+                                        </Grid>
+                                    </GroupBox>
+                                    -->
+                                </Grid>
+                                <GroupBox Header="Режим SLAVE" FontSize="14" BorderBrush="Black" BorderThickness="1.5"
+                                          Visibility="Collapsed">
+                                    <Grid Margin="5">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                            <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Row="0" Grid.Column="0" 
+                                                   Text="Задержка ответа:" 
+                                                   VerticalAlignment="Center" FontSize="14"></TextBlock>
+                                        <TextBox Grid.Row="0" Grid.Column="1"
+                                                 Text="{Binding Path=DeviceReplyDelayInSlaveMode, UpdateSourceTrigger=PropertyChanged}" 
+                                                 Margin ="10,5" Width="80"                                         
+                                                 wpf:TextBoxMaskBehavior.Mask="Integer"
+                                                 wpf:TextBoxMaskBehavior.MaximumValue="250"
+                                                 wpf:TextBoxMaskBehavior.MinimumValue="0"
+                                                 HorizontalAlignment="Left"
+        		                                 ></TextBox>
+                                    </Grid>
+                                </GroupBox>
+                            </StackPanel>
+                        </GroupBox>
+                    </StackPanel>
+                </TabItem>
+                <TabItem Header="Конфигурация измерительных цепей" Style="{DynamicResource RoundedRightCornerTabStyle}"
+                         DataContext="{Binding Path=PO3DeviceUnitMeasurmentCircuitSettingsViewModel}">
+                    <StackPanel Margin="5">
+                        <StackPanel Orientation="Horizontal" FlowDirection="LeftToRight"
+                                    HorizontalAlignment="Right">
+                            <Button Margin="3" Command="{Binding Path=SaveMeasurmentCircuitSettingsToFileCommand}"
+                                    Background="Transparent" BorderBrush="Transparent" ToolTip="Экспорт в файл">
+                                <Image Height="32" Width="32" Source="Images/file-export-icon.png"
+                                       Style="{DynamicResource ButtonImageHoverStyle}">
+                                </Image>
+                            </Button>
+                            <Button Margin="3" Command="{Binding Path=ReadMeasurmentCircuitSettingsFromFileCommand}" 
+                                    Background="Transparent" BorderBrush="Transparent" ToolTip="Импорт из файла">
+                                <Image Height="32" Width="32" Source="Images/file-import-icon.png"
+                                       Style="{DynamicResource ButtonImageHoverStyle}">
+                                </Image>
+                            </Button>
+                            <Button Margin="3" Command="{Binding Path=DefaultMeasurmentCircuitSettingsCommand}"
+                                    Background="Transparent" BorderBrush="Transparent" ToolTip="&quot;Сброс &quot;По умолчанию">
+                                <Image Height="32" Width="32" Source="Images/document_empty.png"
+                                       Style="{DynamicResource ButtonImageHoverStyle}">
+                                </Image>
+                            </Button>
+                        </StackPanel>
+                        <GroupBox Header="Измерительные трансформаторы" FontSize="14" BorderBrush="Black" BorderThickness="1.5">
+                            <Grid  HorizontalAlignment="Left">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition></RowDefinition>
+                                    <RowDefinition></RowDefinition>
+                                    <RowDefinition></RowDefinition>
+                                    <RowDefinition></RowDefinition>
+                                    <RowDefinition></RowDefinition>
+                                </Grid.RowDefinitions>
+                                <TextBlock Grid.Row="0" Grid.Column="1" Text="Первичная обмотка" TextAlignment="Center" Margin="5"></TextBlock>
+                                <TextBlock Grid.Row="0" Grid.Column="2" Text="Вторичная обмотка" TextAlignment="Center" Margin="5"></TextBlock>
+                                <TextBlock Grid.Row="0" Grid.Column="3" Text="Коэффициенты трансформации" Margin="5" TextWrapping="Wrap" Width="150" TextAlignment="Center"></TextBlock>
+                                <TextBlock Grid.Row="1" Grid.Column="0" Text="Напряжение (В)" HorizontalAlignment="Right" Margin="5"></TextBlock>
+                                <ComboBox Grid.Row="1" Grid.Column="1" Margin="5" Width="100" Height="25" VerticalContentAlignment="Center"
+                                          Text="{Binding Path=PrimaryVoltage, UpdateSourceTrigger=PropertyChanged,Mode=TwoWay}"
+                                          IsEditable="True" ItemsSource="{Binding Path=AvailablePrimaryVoltages}"></ComboBox>
+                                <!--
+                                <TextBox  Text="{Binding Path=PrimaryVoltage, UpdateSourceTrigger=PropertyChanged}" 
+                                                 Margin="5" Width="100" Height="25"  VerticalContentAlignment="Center"                                      
+                                                 wpf:TextBoxMaskBehavior.Mask="Integer"
+                                                 wpf:TextBoxMaskBehavior.MaximumValue="900000"
+                                                 wpf:TextBoxMaskBehavior.MinimumValue="1"></TextBox>
+                                
+                                <TextBox Grid.Row="1" Grid.Column="2" Text="{Binding Path=SecondaryVoltage, UpdateSourceTrigger=PropertyChanged}" 
+                                                 Margin="5" Width="100" VerticalContentAlignment="Center"                                        
+                                                 wpf:TextBoxMaskBehavior.Mask="Integer"
+                                                 wpf:TextBoxMaskBehavior.MaximumValue="1000"
+                                                 wpf:TextBoxMaskBehavior.MinimumValue="1"></TextBox>
+                                -->
+                                <ComboBox Grid.Row="1" Grid.Column="2" Margin="5" Width="100" Height="25" VerticalContentAlignment="Center"
+                                          Text="{Binding Path=SecondaryVoltage, UpdateSourceTrigger=PropertyChanged,Mode=TwoWay}"
+                                          IsEditable="True" ItemsSource="{Binding Path=AvailableSecondaryVoltages}"></ComboBox>
+                                
+                                <TextBox Grid.Row="1" Grid.Column="3" Text="{Binding Path=Coef_VT, UpdateSourceTrigger=PropertyChanged}" 
+                                                 Margin="5" Width="100" IsEnabled="False" VerticalContentAlignment="Center"></TextBox>
+                                <TextBlock Grid.Row="1" Grid.Column="4" Text="Тип подключения:" Margin="5" Width="150" TextAlignment="Center"></TextBlock>
+                                <TextBlock Grid.Row="2" Grid.Column="0" Text="Ток (А)" HorizontalAlignment="Right" Margin="5"></TextBlock>
+                                <ComboBox Grid.Row="2" Grid.Column="1" Margin="5" Width="100" Height="25" VerticalContentAlignment="Center"
+                                          Text="{Binding Path=PrimaryCurrent, UpdateSourceTrigger=PropertyChanged,Mode=TwoWay}"
+                                          IsEditable="True" ItemsSource="{Binding Path=AvailablePrimaryCurrents}"></ComboBox>
+                                <!--
+                                <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding Path=PrimaryCurrent, UpdateSourceTrigger=PropertyChanged}" 
+                                                 Margin="5" Width="100" VerticalContentAlignment="Center"                                        
+                                                 wpf:TextBoxMaskBehavior.Mask="Integer"
+                                                 wpf:TextBoxMaskBehavior.MaximumValue="60000"
+                                                 wpf:TextBoxMaskBehavior.MinimumValue="1"></TextBox>
+                                <TextBox Grid.Row="2" Grid.Column="2" Text="{Binding Path=SecondaryCurrent, UpdateSourceTrigger=PropertyChanged}" 
+                                                 Margin="5" Width="100"  VerticalContentAlignment="Center"                                       
+                                                 wpf:TextBoxMaskBehavior.Mask="Integer"
+                                                 wpf:TextBoxMaskBehavior.MaximumValue="10"
+                                                 wpf:TextBoxMaskBehavior.MinimumValue="1"></TextBox>
+                                -->
+                                <ComboBox Grid.Row="2" Grid.Column="2" Margin="5" Width="100" Height="25" VerticalContentAlignment="Center"
+                                          Text="{Binding Path=SecondaryCurrent, UpdateSourceTrigger=PropertyChanged,Mode=TwoWay}"
+                                          IsEditable="True" ItemsSource="{Binding Path=AvailableSecondaryCurrents}"></ComboBox>
+                                <TextBox Grid.Row="2" Grid.Column="3" Text="{Binding Path=Coef_CT, UpdateSourceTrigger=PropertyChanged}" 
+                                                 Margin="5" Width="100" IsEnabled="False" VerticalContentAlignment="Center"></TextBox>
+                                <ComboBox Grid.Row="2" Grid.Column="4" Margin ="5" Width="140"
+                                          SelectedItem="{Binding Path=ConnectionType, Mode=TwoWay}"
+                                          ItemsSource="{Binding Path=AvailableConnectionTypes}"
+        		                          ></ComboBox>
+                                <!--
+                                <TextBlock Grid.Row="3" Grid.Column="0" Text="Позиция деся-тичной точки (напряжение)" TextWrapping="Wrap" Width="100" TextAlignment="Right" Margin="5"></TextBlock>
+                                <ComboBox Grid.Row="3" Grid.Column="1" Margin ="5" Width="100" Height="25"
+                                          SelectedItem="{Binding Path=PrimaryVoltageDecimalPointPosition, Mode=TwoWay}"
+                                          ItemsSource="{Binding Path=AvailableDecimalPointPositions}"
+        		                          ></ComboBox>
+                                <ComboBox Grid.Row="3" Grid.Column="2" Margin ="5" Width="100" Height="25"
+                                          SelectedItem="{Binding Path=SecondaryVoltageDecimalPointPosition, Mode=TwoWay}"
+                                          ItemsSource="{Binding Path=AvailableDecimalPointPositions}"
+        		                          ></ComboBox>
+                                <TextBlock Grid.Row="4" Grid.Column="0" Text="Позиция деся-тичной точки (ток)" TextWrapping="Wrap" Width="100" TextAlignment="Right" Margin="5"></TextBlock>
+                                <ComboBox Grid.Row="4" Grid.Column="1" Margin ="5" Width="100" Height="25"
+                                          SelectedItem="{Binding Path=PrimaryCurrentDecimalPointPosition, Mode=TwoWay}"
+                                          ItemsSource="{Binding Path=AvailableDecimalPointPositions}"
+        		                          ></ComboBox>
+                                <ComboBox Grid.Row="4" Grid.Column="2" Margin ="5" Width="100" Height="25"
+                                          SelectedItem="{Binding Path=SecondaryCurrentDecimalPointPosition, Mode=TwoWay}"
+                                          ItemsSource="{Binding Path=AvailableDecimalPointPositions}"
+        		                          ></ComboBox>
+                                -->
+                            </Grid>
+                        </GroupBox>
+                        <GroupBox Header="Единицы измерения отображаемых параметров" FontSize="14" BorderBrush="Black" BorderThickness="1.5">
+                            <!--
+                            <StackPanel>
+                                <WrapPanel>
+                                    
+                                </WrapPanel>
+                                <WrapPanel>
+                                    <TextBlock Text="Активная мощность" Margin="10"></TextBlock>
+                                    <ComboBox  Margin ="10" Width="60"
+                                          SelectedItem="{Binding Path=ActivePowerDisplayUnits, Mode=TwoWay}"
+                                          ItemsSource="{Binding Path=AvailableActivePowerDisplayUnits}"
+        		                          ></ComboBox>
+                                    <TextBlock Text="Реактивная мощность" Margin="10"></TextBlock>
+                                    <ComboBox  Margin ="10" Width="60"
+                                          SelectedItem="{Binding Path=ReactivePowerDisplayUnits, Mode=TwoWay}"
+                                          ItemsSource="{Binding Path=AvailableReactivePowerDisplayUnits}"
+        		                          ></ComboBox>
+                                </WrapPanel>
+                            </StackPanel>
+                            -->
+                            <StackPanel>
+                                <Grid >
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="160"></ColumnDefinition>
+                                        <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                        <ColumnDefinition Width="160"></ColumnDefinition>
+                                        <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Напряжение" Margin="10" TextAlignment="Right"></TextBlock>
+                                    <ComboBox  Grid.Row="0" Grid.Column="1" Margin ="10" Width="70"
+                                          SelectedItem="{Binding Path=VoltageDisplayUnits, Mode=TwoWay}"
+                                         ItemsSource="{Binding Path=AvailableVoltageDisplayUnits}"
+        		                          ></ComboBox>
+                                    <TextBlock Grid.Row="0" Grid.Column="2" Text="Ток" Margin="10" TextAlignment="Right"></TextBlock>
+                                    <ComboBox  Grid.Row="0" Grid.Column="3" Margin ="10" Width="70"
+                                          SelectedItem="{Binding Path=CurrentDisplayUnits, Mode=TwoWay}"
+                                          ItemsSource="{Binding Path=AvailableCurrentDisplayUnits}"
+        		                          ></ComboBox>
+                                </Grid>
+                                <GroupBox Header="Фазные" Margin="5" BorderThickness="2" BorderBrush="Black">
+                                    <Grid >
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                            <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                            <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                            <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                            <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                            <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                        </Grid.RowDefinitions>
+
+                                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Активные мощности" Margin="10" TextAlignment="Right"></TextBlock>
+                                        <ComboBox  Grid.Row="1" Grid.Column="1" Margin ="10" Width="70"
+                                          SelectedItem="{Binding Path=ActivePowerDisplayUnits, Mode=TwoWay}"
+                                          ItemsSource="{Binding Path=AvailableActivePowerDisplayUnits}"
+        		                          ></ComboBox>
+                                        <TextBlock Grid.Row="1" Grid.Column="2" Text="Реактивные мощности" Margin="10" TextAlignment="Right"></TextBlock>
+                                        <ComboBox Grid.Row="1" Grid.Column="3" Margin ="10" Width="70"
+                                          SelectedItem="{Binding Path=ReactivePowerDisplayUnits, Mode=TwoWay}"
+                                          ItemsSource="{Binding Path=AvailableReactivePowerDisplayUnits}"
+        		                          ></ComboBox>
+
+                                        <TextBlock Grid.Row="1" Grid.Column="4" Text="Полные мощности" Margin="10" TextAlignment="Right"></TextBlock>
+                                        <ComboBox Grid.Row="1" Grid.Column="5" Margin ="10" Width="70"
+                                          SelectedItem="{Binding Path=TotalPowerDisplayUnits, Mode=TwoWay}"
+                                          ItemsSource="{Binding Path=AvailableTotalPowerDisplayUnits}"
+        		                          ></ComboBox>
+                                    </Grid>
+                                </GroupBox>
+                                <Grid >
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="160"></ColumnDefinition>
+                                        <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Мощности системы" Margin="10" TextAlignment="Right"></TextBlock>
+                                    <ComboBox  Grid.Row="0" Grid.Column="1" Margin ="10" Width="150"
+                                          SelectedItem="{Binding Path=CommonPowersDisplayUnits, Mode=TwoWay}"
+                                         ItemsSource="{Binding Path=AvailableCommonPowersDisplayUnits}"
+        		                          ></ComboBox>
+                                </Grid>
+                            </StackPanel>
+                        </GroupBox>
+                    </StackPanel>
+                </TabItem>
+                <TabItem Header="Настройка окон отображения" Style="{DynamicResource RoundedRightCornerTabStyle}"
+                         DataContext="{Binding Path=PO3DeviceUnitWindowsSettingsTabViewModel}">
+                    <DockPanel Margin="5">
+                        <StackPanel DockPanel.Dock="Top">
+                            <DockPanel>
+                                <GroupBox Header="Общие настройки" FontSize="14" BorderBrush="Black" BorderThickness="1.5">
+                                    <Grid Margin="5,0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                            <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                            <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                            <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                            <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                            <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Row="0" Grid.Column="0" 
+                                           Text="Количество окон:" 
+                                           VerticalAlignment="Center" FontSize="14"></TextBlock>
+                                        <ComboBox Grid.Row="0" Grid.Column="1" Margin ="10,0" Width="80"
+                                          SelectedItem="{Binding Path=WindowsCount, Mode=TwoWay}"
+                                          ItemsSource="{Binding Path=AvailableWindowsCount}"
+        		                          ></ComboBox>
+                                        <TextBlock Grid.Row="0" Grid.Column="2" Text="№ активного окна:" Margin="10,0"
+                                           VerticalAlignment="Center" FontSize="14"></TextBlock>
+                                        <ComboBox Grid.Row="0" Grid.Column="3" Margin ="10,0,0,0" Width="80"
+                                          SelectedItem="{Binding Path=DefaultWindowIndex, Mode=TwoWay}"
+                                          ItemsSource="{Binding Path=AvailableWindowIndexes}"
+        		                          ></ComboBox>
+                                    </Grid>
+                                </GroupBox>
+                                <StackPanel Orientation="Horizontal" FlowDirection="LeftToRight" HorizontalAlignment="Right">
+                                    <Button Margin="3" Command="{Binding Path=SaveWindowsSettingsToFileCommand}"
+                                        Background="Transparent" BorderBrush="Transparent" ToolTip="Экспорт в файл">
+                                        <Image Height="32" Width="32" Source="Images/file-export-icon.png"
+                                            Style="{DynamicResource ButtonImageHoverStyle}">
+                                        </Image>
+                                    </Button>
+                                    <Button Margin="3" Command="{Binding Path=ReadWindowsSettingsFromFileCommand}" 
+                                        Background="Transparent" BorderBrush="Transparent" ToolTip="Импорт из файла">
+                                        <Image Height="32" Width="32" Source="Images/file-import-icon.png"
+                                            Style="{DynamicResource ButtonImageHoverStyle}">
+                                        </Image>
+                                    </Button>
+                                    <Button Margin="3" Command="{Binding Path=DefaultWindowsSettingsCommand}"
+                                            CommandParameter="{x:Static utils:ConnectionTypes.ThreeWires}"
+                                            Background="Transparent" BorderBrush="Transparent" ToolTip="Сброс &quot;По умолчанию&quot; (3-х провод.)">
+                                        <Image Height="32" Width="32" Source="Images/3_empty.png"
+                                            Style="{DynamicResource ButtonImageHoverStyle}">
+                                        </Image>
+                                    </Button>
+                                    <Button Margin="3" Command="{Binding Path=DefaultWindowsSettingsCommand}"
+                                            CommandParameter="{x:Static utils:ConnectionTypes.FourWires}"
+                                            Background="Transparent" BorderBrush="Transparent" ToolTip="Сброс &quot;По умолчанию&quot; (4-х провод.)">
+                                        <Image Height="32" Width="32" Source="Images/4_empty.png"
+                                            Style="{DynamicResource ButtonImageHoverStyle}">
+                                        </Image>
+                                    </Button>
+                                </StackPanel>
+                            </DockPanel>
+                        </StackPanel>
+                        <TabControl DockPanel.Dock="Bottom" ItemsSource="{Binding Path=WindowsSettingsTabs}" Background="Transparent">
+                            <TabControl.ItemContainerStyle>
+                                <Style TargetType="{x:Type TabItem}">
+                                    <Setter Property="Visibility" Value="{Binding IsVisible}"/>
+                                    <Setter Property="FontWeight" Value="{Binding TabItemFontWeight}"/>
+                                </Style>
+                            </TabControl.ItemContainerStyle>
+                            <TabControl.ItemTemplate>
+                                <DataTemplate DataType="{x:Type viewModel:PO3DeviceUnitWindowSettingsViewModel}">
+                                    <TextBlock Text="{Binding Header}"/>
+                                </DataTemplate>
+                            </TabControl.ItemTemplate>
+                            <TabControl.ContentTemplate>
+                                <DataTemplate>
+                                    <view:PO3WindowSettingsView HorizontalAlignment="Center"/>
+                                </DataTemplate>
+                            </TabControl.ContentTemplate>
+                        </TabControl>
+                    </DockPanel>
+                </TabItem>
+                <TabItem Header="Настройка отображения параметров" Style="{DynamicResource RoundedRightCornerTabStyle}"
+                         DataContext="{Binding Path=PO3DeviceUnitParametersSettingsViewModel}">
+                    <DockPanel Margin="5" LastChildFill="True">
+                        <StackPanel Orientation="Horizontal" FlowDirection="LeftToRight"
+                                    HorizontalAlignment="Right"
+                                    DockPanel.Dock="Top">
+                            <Button Margin="3" Command="{Binding Path=SaveParametersSettingsToFileCommand}"
+                                    Background="Transparent" BorderBrush="Transparent" ToolTip="Экспорт в файл">
+                                <Image Height="32" Width="32" Source="Images/file-export-icon.png"
+                                       Style="{DynamicResource ButtonImageHoverStyle}">
+                                </Image>
+                            </Button>
+                            <Button Margin="3" Command="{Binding Path=ReadParametersSettingsFromFileCommand}" 
+                                    Background="Transparent" BorderBrush="Transparent" ToolTip="Импорт из файла">
+                                <Image Height="32" Width="32" Source="Images/file-import-icon.png"
+                                       Style="{DynamicResource ButtonImageHoverStyle}">
+                                </Image>
+                            </Button>
+                        </StackPanel>
+                        <GroupBox Header="Параметры отображения" FontSize="14" BorderBrush="Black" BorderThickness="1.5">
+                            <Grid DockPanel.Dock="Bottom">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="1.1*"></ColumnDefinition>
+                                    <ColumnDefinition Width="3*"></ColumnDefinition>
+                                </Grid.ColumnDefinitions>
+                                <ListBox Grid.Row="0" Grid.Column="0" Margin="10"                                     
+                                         BorderThickness="3"
+                                         ItemsSource="{Binding Path=Parameters}"
+                                         DisplayMemberPath="ParameterName"
+                                         FontSize="14"
+                                         VerticalAlignment="Stretch"
+                                         ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                         ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                                         SelectedItem="{Binding Path=SelectedParameter,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
+                                </ListBox>
+                                <StackPanel Grid.Column="1" Grid.Row="0" Margin="5" Orientation="Vertical">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                            <ColumnDefinition Width="120"></ColumnDefinition>
+                                            <ColumnDefinition></ColumnDefinition>
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                        </Grid.RowDefinitions>
+                                        
+                                        <TextBlock Grid.Row="0" Grid.Column="0" 
+                                                   Text="Верхняя технологическая уставка [Ап+]:"
+                                                   Margin="0,5,5,5" HorizontalAlignment="Right"></TextBlock>
+                                        <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding Path=SelectedApPlus, 
+                                                 UpdateSourceTrigger=PropertyChanged}" 
+                                                 Margin="5" HorizontalAlignment="Stretch"></TextBox>
+                                        <TextBlock Grid.Row="0" Grid.Column="2" 
+                                                   Text="(в единицах измерения)"
+                                                   Margin="0,5,0,5" HorizontalAlignment="Left"></TextBlock>
+                                        <TextBlock Grid.Row="1" Grid.Column="0" 
+                                                   Text="Нижняя технологическая уставка [Ап-]:"
+                                                   Margin="0,5,5,5" HorizontalAlignment="Right"></TextBlock>
+                                        <TextBox Grid.Row="1" Grid.Column="1" 
+                                                 Text="{Binding Path=SelectedApMinus, UpdateSourceTrigger=PropertyChanged}" 
+                                                 Margin="5" HorizontalAlignment="Stretch"></TextBox>
+                                        <TextBlock Grid.Row="1" Grid.Column="2" 
+                                                   Text="(в единицах измерения)"
+                                                   Margin="0,5,0,5" HorizontalAlignment="Left"></TextBlock>
+                                        <TextBlock Grid.Row="2" Grid.Column="0" 
+                                                   Visibility="{Binding IsVisible}"                                                   
+                                                   Text="100% значение аналоговой шкалы [%]:"
+                                                   Margin="0,5,5,5" HorizontalAlignment="Right"></TextBlock>
+                                        <TextBox Grid.Row="2" Grid.Column="1"
+                                                 Visibility="{Binding IsVisible}"
+                                                 Text="{Binding Path=SelectedPercentage, UpdateSourceTrigger=PropertyChanged}" 
+                                                 Margin="5" HorizontalAlignment="Stretch"></TextBox>
+                                        <TextBlock Grid.Row="2" Grid.Column="2" 
+                                                   Text="(в единицах измерения)"
+                                                   Visibility="{Binding IsVisible}"
+                                                   Margin="0,10,0,0" HorizontalAlignment="Left"></TextBlock>
+                                        <TextBlock Grid.Row="3" Grid.Column="0"
+                                                   Visibility="{Binding IsVisible}"
+                                                   Text="Зона нечувствительности [Зн]:"
+                                                   Margin="0,5,4,5" HorizontalAlignment="Right"></TextBlock>
+                                        <ComboBox Grid.Row="3" Grid.Column="1" 
+                                                  Visibility="{Binding IsVisible}"
+                                                  Margin="5" HorizontalAlignment="Stretch"
+                                                  SelectedItem="{Binding Path=SelectedZn, Mode=TwoWay}"
+                                                  ItemsSource="{Binding Path=AvailableZnValues}"></ComboBox>
+                                        <!--
+                                        <TextBlock Grid.Row="0" Grid.Column="0" 
+                                                   Text="Порог прекращения мигания [Пм]:"
+                                                   Margin="0,5,5,5" HorizontalAlignment="Right"></TextBlock>
+                                        <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding Path=SelectedPm, UpdateSourceTrigger=PropertyChanged}" 
+                                                 Margin="5" HorizontalAlignment="Stretch"
+                                                 wpf:TextBoxMaskBehavior.Mask="Integer"
+                                                 wpf:TextBoxMaskBehavior.MaximumValue="99"
+                                                 wpf:TextBoxMaskBehavior.MinimumValue="0"></TextBox>
+                                        <TextBlock Grid.Row="0" Grid.Column="2" 
+                                                   Text="(в % от Ап-)"
+                                                   Margin="5,5,0,5" HorizontalAlignment="Left"></TextBlock>
+                                        <TextBlock Grid.Row="1" Grid.Column="0" 
+                                                   Text="Порог отсечки по образцовому параметру [По]:"
+                                                   Margin="0,5,4,5" HorizontalAlignment="Right"></TextBlock>
+                                        <ComboBox Grid.Row="1" Grid.Column="1" 
+                                                  Margin="5" HorizontalAlignment="Stretch"
+                                                  SelectedItem="{Binding Path=SelectedPo, Mode=TwoWay}"
+                                                  ItemsSource="{Binding Path=AvailablePoValues}"></ComboBox>
+                                        <TextBlock Grid.Row="1" Grid.Column="2" 
+                                                   Text="(в % от Ап+)"
+                                                   Margin="5,5,0,5" HorizontalAlignment="Left"></TextBlock>
+                                        <TextBlock Grid.Row="2" Grid.Column="0" 
+                                                   Text="Образцовый параметр [Но]:"
+                                                   Margin="0,5,4,5" HorizontalAlignment="Right"></TextBlock>
+                                        <ComboBox Grid.Row="2" Grid.Column="1" 
+                                                  Margin="5" HorizontalAlignment="Stretch"
+                                                  SelectedItem="{Binding Path=SelectedNo, Mode=TwoWay}"
+                                                  ItemsSource="{Binding Path=AvailableNoValues}"></ComboBox>
+                                        <TextBlock Grid.Row="3" Grid.Column="2" 
+                                                   Text="(разрядов)"
+                                                   Margin="5,5,0,5" HorizontalAlignment="Left"></TextBlock>
+                                        <TextBlock Grid.Row="4" Grid.Column="0" 
+                                                   Text="Количество цифр после запятой [Кц]:"
+                                                   Margin="0,5,5,5" HorizontalAlignment="Right"></TextBlock>
+                                        <ComboBox Grid.Row="4" Grid.Column="1" 
+                                                  Margin="5" HorizontalAlignment="Stretch"
+                                                  SelectedItem="{Binding Path=SelectedKc, Mode=TwoWay}"
+                                                  ItemsSource="{Binding Path=AvailableKcValues}"></ComboBox>
+                                        <TextBlock Grid.Row="5" Grid.Column="0" 
+                                                   Text="Тип вывода на аналоговую шкалу [Та]:"
+                                                   Margin="0,5,5,5" HorizontalAlignment="Right"></TextBlock>
+                                        <ComboBox Grid.Row="5" Grid.Column="1" 
+                                                  Margin="5" HorizontalAlignment="Stretch"
+                                                  SelectedItem="{Binding Path=SelectedTa, Mode=TwoWay}"
+                                                  ItemsSource="{Binding Path=AvailableTaValues}"></ComboBox>
+                                        <TextBlock Grid.Row="6" Grid.Column="0" 
+                                                   Text="Знак перетока мощности [Зп]:"
+                                                   Margin="0,5,5,5" HorizontalAlignment="Right"></TextBlock>
+                                        <ComboBox Grid.Row="6" Grid.Column="1" 
+                                                  Margin="5" HorizontalAlignment="Stretch"
+                                                  SelectedItem="{Binding Path=SelectedZp, Mode=TwoWay}"
+                                                  ItemsSource="{Binding Path=AvailableZpValues}"></ComboBox>
+                                        <TextBlock Grid.Row="7" Grid.Column="0" 
+                                                   Text="Тип (размер) данных [Рз]:"
+                                                   Margin="0,5,5,5" HorizontalAlignment="Right"></TextBlock>
+                                        <ComboBox Grid.Row="7" Grid.Column="1" 
+                                                  Margin="5" HorizontalAlignment="Stretch"
+                                                  SelectedItem="{Binding Path=SelectedRz, Mode=TwoWay}"
+                                                  ItemsSource="{Binding Path=AvailableRzValues}"></ComboBox>
+                                        <TextBlock Grid.Row="8" Grid.Column="0" 
+                                                   Text="Знак данных [Зв]:"
+                                                   Margin="0,5,5,5" HorizontalAlignment="Right"></TextBlock>
+                                        <ComboBox Grid.Row="8" Grid.Column="1" 
+                                                  Margin="5" HorizontalAlignment="Stretch"
+                                                  SelectedItem="{Binding Path=SelectedZv, Mode=TwoWay}"
+                                                  ItemsSource="{Binding Path=AvailableZvValues}"></ComboBox>
+                                        -->
+                                        
+                                    </Grid>
+                                </StackPanel>
+                            </Grid>
+                        </GroupBox>
+                    </DockPanel>
+                </TabItem>
+            </TabControl>
+        </Grid>
+    </DockPanel>
+</Window>

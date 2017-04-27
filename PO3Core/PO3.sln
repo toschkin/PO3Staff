@@ -1,0 +1,40 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25123.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PO3Core", "PO3Core\PO3Core.csproj", "{24AD2CD6-D99D-42A0-819D-5D0CED510DB5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PO3CoreTest", "PO3CoreTest\PO3CoreTest.csproj", "{5B20CFCC-34EB-40EB-AB30-2BBE7B072427}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{24AD2CD6-D99D-42A0-819D-5D0CED510DB5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{24AD2CD6-D99D-42A0-819D-5D0CED510DB5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{24AD2CD6-D99D-42A0-819D-5D0CED510DB5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{24AD2CD6-D99D-42A0-819D-5D0CED510DB5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5B20CFCC-34EB-40EB-AB30-2BBE7B072427}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5B20CFCC-34EB-40EB-AB30-2BBE7B072427}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5B20CFCC-34EB-40EB-AB30-2BBE7B072427}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5B20CFCC-34EB-40EB-AB30-2BBE7B072427}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(TeamFoundationVersionControl) = preSolution
+		SccNumberOfProjects = 3
+		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
+		SccTeamFoundationServer = https://toschkin.visualstudio.com/defaultcollection
+		SccProjectUniqueName0 = PO3Core\\PO3Core.csproj
+		SccProjectName0 = PO3Core
+		SccLocalPath0 = PO3Core
+		SccProjectUniqueName1 = PO3CoreTest\\PO3CoreTest.csproj
+		SccProjectName1 = PO3CoreTest
+		SccLocalPath1 = PO3CoreTest
+		SccLocalPath2 = .
+	EndGlobalSection
+EndGlobal

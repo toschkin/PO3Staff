@@ -1,0 +1,263 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{D0E2FA3E-7373-43C8-8080-E9C904672A1F}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>PO3Configurator</RootNamespace>
+    <AssemblyName>PO3Configurator</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <WarningLevel>4</WarningLevel>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <SccProjectName>SAK</SccProjectName>
+    <SccLocalPath>SAK</SccLocalPath>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccProvider>SAK</SccProvider>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>.\View\Images\main.ico</ApplicationIcon>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="CommonWindows">
+      <HintPath>..\..\Dll\CommonWindows.dll</HintPath>
+    </Reference>
+    <Reference Include="ConversionHelper, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Dll\ConversionHelper.dll</HintPath>
+    </Reference>
+    <Reference Include="ModbusReaderSaver">
+      <HintPath>..\..\Dll\ModbusReaderSaver.dll</HintPath>
+    </Reference>
+    <Reference Include="MVVMToolkit">
+      <HintPath>..\..\Dll\MVVMToolkit.dll</HintPath>
+    </Reference>
+    <Reference Include="PO3Core">
+      <HintPath>..\..\PO3Core\PO3Core\bin\x86\$(Configuration)\PO3Core.dll</HintPath>
+    </Reference>
+    <Reference Include="QuickConverter, Version=1.2.3.0, Culture=neutral, PublicKeyToken=9c892aa7bc2af2cf, processorArchitecture=MSIL">
+      <HintPath>..\packages\QuickConverter.1.2.3.0\lib\net40\QuickConverter.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Rubenhak.Common.WPF">
+      <HintPath>..\..\Dll\Rubenhak.Common.WPF.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Xaml">
+      <RequiredTargetFramework>4.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="WindowsBase" />
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+  </ItemGroup>
+  <ItemGroup>
+    <ApplicationDefinition Include="App.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </ApplicationDefinition>
+    <Compile Include="Utils\Constants.cs" />
+    <Compile Include="Utils\WaitCursor.cs" />
+    <Compile Include="ViewModel\MainWindowViewModel.cs" />
+    <Compile Include="ViewModel\PO3DeviceUnitCommonSettingsTabViewModel.cs" />
+    <Compile Include="ViewModel\PO3DeviceUnitCommunicationSettingsTabViewModel.cs" />
+    <Compile Include="ViewModel\PO3DeviceUnitMeasurmentCircuitSettingsViewModel.cs" />
+    <Compile Include="ViewModel\PO3DeviceUnitParametersSettingsViewModel.cs" />
+    <Compile Include="ViewModel\PO3DeviceUnitWindowSettingsViewModel.cs" />
+    <Compile Include="ViewModel\PO3DeviceUnitWindowsSettingsTabViewModel.cs" />
+    <Compile Include="View\PO3WindowSettingsView.xaml.cs">
+      <DependentUpon>PO3WindowSettingsView.xaml</DependentUpon>
+    </Compile>
+    <Page Include="Resources\Image.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Resources\TabControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Resources\TextBox.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\MainWindowView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Compile Include="App.xaml.cs">
+      <DependentUpon>App.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\MainWindowView.xaml.cs">
+      <DependentUpon>MainWindowView.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Page Include="View\PO3WindowSettingsView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <None Include="packages.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <AppDesigner Include="Properties\" />
+    <Resource Include="View\Fonts\rusfont439.ttf" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="View\Images\main.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="View\Images\led_green.png" />
+    <Resource Include="View\Images\led_red.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="View\Images\port close icon.png" />
+    <Resource Include="View\Images\port open icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="View\Images\open po3.png" />
+    <Resource Include="View\Images\save po3.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="View\Images\1-brightness-icon.png" />
+    <Resource Include="View\Images\2-brightness-icon.png" />
+    <Resource Include="View\Images\3-brightness-icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="View\Images\sync timer.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="View\Images\test po3.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="View\Images\Reset-icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="View\Images\file-export-icon.png" />
+    <Resource Include="View\Images\file-import-icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="View\Images\document_empty.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="View\Images\po3.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="View\Images\Backgrounds\russian flag.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="View\Images\Backgrounds\9may.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="View\Images\Backgrounds\newyear.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="View\Images\Backgrounds\23feb.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="View\Images\Backgrounds\1may.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="View\Images\Backgrounds\4novem.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="View\Images\Backgrounds\1june.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="View\Images\Backgrounds\8_marta.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="View\Images\Backgrounds\default.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Model\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="View\Images\3_empty.png" />
+    <Resource Include="View\Images\4_empty.png" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

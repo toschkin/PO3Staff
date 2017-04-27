@@ -1,0 +1,5 @@
+D:\Work\MFC\PROJECTS\3stroch\PO3Config\MVVMToolkit\MVVMToolkit\obj\Debug\MVVMToolkit.csprojResolveAssemblyReference.cache
+D:\Work\MFC\PROJECTS\3stroch\PO3Config\MVVMToolkit\MVVMToolkit\bin\Debug\MVVMToolkit.dll
+D:\Work\MFC\PROJECTS\3stroch\PO3Config\MVVMToolkit\MVVMToolkit\bin\Debug\MVVMToolkit.pdb
+D:\Work\MFC\PROJECTS\3stroch\PO3Config\MVVMToolkit\MVVMToolkit\obj\Debug\MVVMToolkit.dll
+D:\Work\MFC\PROJECTS\3stroch\PO3Config\MVVMToolkit\MVVMToolkit\obj\Debug\MVVMToolkit.pdb
